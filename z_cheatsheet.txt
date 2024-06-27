@@ -1,0 +1,177 @@
+# Initialize the GIT repo:
+GO to folder/ file - > Open GIT BASH here
+git init
+
+
+# Add README file
+
+# Add gitignore file
+
+# License file 
+
+# First commit to GIT
+git add .
+git commit -am "Initial Commit"
+
+
+# Push prooject to GITHUB
+Steps: 
+# Create ssh key
+Process not sure
+
+# Create new repository in GITHUB
+git remote add origin https://#########
+git branch -M main
+git push -u origin main
+
+
+# Creating a development server
+vagrant init ubuntu/bionic64
+
+# Customize Vagrant file
+Add file data from link
+
+# step to connect vagrant server
+vagrant up
+
+# connect to server
+vagrant ssh
+
+# to move to vagrant diectory
+cd /vagrant/
+
+# To disconect
+exit
+ 
+# Test page render in Django
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse('<h1>Blog Home</h1>')
+
+
+# Vagrant file : context
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+ 
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "ubuntu/bionic64"
+  config.vm.box_version = "~> 20200304.0.0"
+ 
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
+ 
+  config.vm.provision "shell", inline: <<-SHELL
+    systemctl disable apt-daily.service
+    systemctl disable apt-daily.timer
+ 
+    sudo apt-get update
+    sudo apt-get install -y python3-venv zip
+    touch /home/vagrant/.bash_aliases
+    if ! grep -q PYTHON_ALIAS_ADDED /home/vagrant/.bash_aliases; then
+      echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
+      echo "alias python='python3'" >> /home/vagrant/.bash_aliases
+    fi
+  SHELL
+ end
+ 
+ 
+# Model field in Django
+
+
+title = models.CharField(max_length=100)
+description = models.TextField()
+age = models.IntegerField()
+price = models.FloatField()
+cost = models.DecimalField(max_digits=10, decimal_places=2)
+is_active = models.BooleanField(default=True)
+published_date = models.DateField()
+created_at = models.DateTimeField(auto_now_add=True)
+start_time = models.TimeField()
+email = models.EmailField()
+website = models.URLField()
+file = models.FileField(upload_to='uploads/')
+image = models.ImageField(upload_to='images/')
+slug = models.SlugField()
+author = models.ForeignKey(User, on_delete=models.CASCADE)
+profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+categories = models.ManyToManyField(Category)
+uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+status = models.CharField(
+    max_length=20,
+    choices=[
+        ('draft', 'Draft'),
+        ('published', 'Published'),
+        ('archived', 'Archived'),
+    ],
+    default='draft'
+)
+
+
+# for making API hiding for rest user and read only
+
+# Add in settings.py
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+     'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+
+}
+
+ 
+ # Complete GET,POST,UPDATE,DELETE 
+ import requests
+
+# Define the base URL
+base_url = 'https://jsonplaceholder.typicode.com/posts'
+
+# GET request
+try:
+    response = requests.get(f'{base_url}/1')
+    response.raise_for_status()
+    print('GET:', response.json())
+except requests.exceptions.RequestException as e:
+    print(f'GET request failed: {e}')
+
+# POST request
+try:
+    payload = {'title': 'foo', 'body': 'bar', 'userId': 1}
+    response = requests.post(base_url, json=payload)
+    response.raise_for_status()
+    print('POST:', response.json())
+except requests.exceptions.RequestException as e:
+    print(f'POST request failed: {e}')
+
+# PUT request
+try:
+    payload = {'id': 1, 'title': 'foo', 'body': 'bar', 'userId': 1}
+    response = requests.put(f'{base_url}/1', json=payload)
+    response.raise_for_status()
+    print('PUT:', response.json())
+except requests.exceptions.RequestException as e:
+    print(f'PUT request failed: {e}')
+
+# DELETE request
+try:
+    response = requests.delete(f'{base_url}/1')
+    response.raise_for_status()
+    print('DELETE:', response.status_code)
+except requests.exceptions.RequestException as e:
+    print(f'DELETE request failed: {e}')
+
